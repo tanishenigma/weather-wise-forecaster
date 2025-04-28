@@ -1,36 +1,60 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Thermometer, Droplets, Wind, CloudRain, Gauge, Cloud } from 'lucide-react';
+import { Thermometer, Droplets, Wind, CloudRain, Gauge, Snow, Compass, Clock, Calendar } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+
+export interface WeatherFeatures {
+  temp: number;
+  dwpt: number;
+  rhum: number;
+  prcp: number;
+  snow: number;
+  wdir: number;
+  wspd: number;
+  wpgt: number;
+  pres: number;
+  hour: number;
+  day_of_week: number;
+}
 
 interface WeatherFormProps {
   onPredict: (formData: WeatherFeatures) => void;
   isLoading: boolean;
 }
 
-export interface WeatherFeatures {
-  temperature: number;
-  humidity: number;
-  wind_speed: number;
-  precipitation: number;
-  pressure: number;
-  cloud_cover: number;
-}
-
 const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<WeatherFeatures>({
-    temperature: 25.0,
-    humidity: 65.0,
-    wind_speed: 10.0,
-    precipitation: 0.0,
-    pressure: 1013.0,
-    cloud_cover: 30.0,
+    temp: 20.0,
+    dwpt: 15.0,
+    rhum: 65.0,
+    prcp: 0.0,
+    snow: 0.0,
+    wdir: 180,
+    wspd: 10.0,
+    wpgt: 15.0,
+    pres: 1013.0,
+    hour: new Date().getHours(),
+    day_of_week: new Date().getDay()
   });
+
+  useEffect(() => {
+    // Update time-based fields every minute
+    const interval = setInterval(() => {
+      const now = new Date();
+      setFormData(prev => ({
+        ...prev,
+        hour: now.getHours(),
+        day_of_week: now.getDay()
+      }));
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -44,7 +68,7 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
     e.preventDefault();
     
     // Basic validation
-    if (formData.humidity < 0 || formData.humidity > 100) {
+    if (formData.rhum < 0 || formData.rhum > 100) {
       toast({
         title: "Invalid Input",
         description: "Humidity must be between 0 and 100%",
@@ -53,10 +77,10 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
       return;
     }
     
-    if (formData.cloud_cover < 0 || formData.cloud_cover > 100) {
+    if (formData.wdir < 0 || formData.wdir > 360) {
       toast({
         title: "Invalid Input",
-        description: "Cloud cover must be between 0 and 100%",
+        description: "Wind direction must be between 0 and 360 degrees",
         variant: "destructive"
       });
       return;
@@ -68,7 +92,7 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
   return (
     <Card className="w-full max-w-xl">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Weather Prediction</CardTitle>
+        <CardTitle className="text-2xl">Weather Parameters</CardTitle>
         <CardDescription>
           Enter weather parameters to get a prediction
         </CardDescription>
@@ -77,96 +101,175 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="temperature" className="flex items-center gap-2">
+              <Label htmlFor="temp" className="flex items-center gap-2">
                 <Thermometer className="h-4 w-4" /> Temperature (°C)
               </Label>
               <Input
-                id="temperature"
-                name="temperature"
+                id="temp"
+                name="temp"
                 type="number"
                 step="0.1"
-                value={formData.temperature}
+                value={formData.temp}
                 onChange={handleChange}
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="humidity" className="flex items-center gap-2">
+              <Label htmlFor="dwpt" className="flex items-center gap-2">
+                <Droplets className="h-4 w-4" /> Dew Point (°C)
+              </Label>
+              <Input
+                id="dwpt"
+                name="dwpt"
+                type="number"
+                step="0.1"
+                value={formData.dwpt}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="rhum" className="flex items-center gap-2">
                 <Droplets className="h-4 w-4" /> Humidity (%)
               </Label>
               <Input
-                id="humidity"
-                name="humidity"
+                id="rhum"
+                name="rhum"
                 type="number"
                 step="0.1"
                 min="0"
                 max="100"
-                value={formData.humidity}
+                value={formData.rhum}
                 onChange={handleChange}
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="wind_speed" className="flex items-center gap-2">
-                <Wind className="h-4 w-4" /> Wind Speed (km/h)
-              </Label>
-              <Input
-                id="wind_speed"
-                name="wind_speed"
-                type="number"
-                step="0.1"
-                min="0"
-                value={formData.wind_speed}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="precipitation" className="flex items-center gap-2">
+              <Label htmlFor="prcp" className="flex items-center gap-2">
                 <CloudRain className="h-4 w-4" /> Precipitation (mm)
               </Label>
               <Input
-                id="precipitation"
-                name="precipitation"
+                id="prcp"
+                name="prcp"
                 type="number"
                 step="0.1"
                 min="0"
-                value={formData.precipitation}
+                value={formData.prcp}
                 onChange={handleChange}
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="pressure" className="flex items-center gap-2">
+              <Label htmlFor="snow" className="flex items-center gap-2">
+                <Snow className="h-4 w-4" /> Snowfall (mm)
+              </Label>
+              <Input
+                id="snow"
+                name="snow"
+                type="number"
+                step="0.1"
+                min="0"
+                value={formData.snow}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="wdir" className="flex items-center gap-2">
+                <Compass className="h-4 w-4" /> Wind Direction (°)
+              </Label>
+              <Input
+                id="wdir"
+                name="wdir"
+                type="number"
+                step="1"
+                min="0"
+                max="360"
+                value={formData.wdir}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="wspd" className="flex items-center gap-2">
+                <Wind className="h-4 w-4" /> Wind Speed (km/h)
+              </Label>
+              <Input
+                id="wspd"
+                name="wspd"
+                type="number"
+                step="0.1"
+                min="0"
+                value={formData.wspd}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="wpgt" className="flex items-center gap-2">
+                <Wind className="h-4 w-4" /> Wind Gust (km/h)
+              </Label>
+              <Input
+                id="wpgt"
+                name="wpgt"
+                type="number"
+                step="0.1"
+                min="0"
+                value={formData.wpgt}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="pres" className="flex items-center gap-2">
                 <Gauge className="h-4 w-4" /> Pressure (hPa)
               </Label>
               <Input
-                id="pressure"
-                name="pressure"
+                id="pres"
+                name="pres"
                 type="number"
                 step="0.1"
-                value={formData.pressure}
+                value={formData.pres}
                 onChange={handleChange}
                 required
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="cloud_cover" className="flex items-center gap-2">
-                <Cloud className="h-4 w-4" /> Cloud Cover (%)
+              <Label htmlFor="hour" className="flex items-center gap-2">
+                <Clock className="h-4 w-4" /> Hour (0-23)
               </Label>
               <Input
-                id="cloud_cover"
-                name="cloud_cover"
+                id="hour"
+                name="hour"
                 type="number"
-                step="0.1"
                 min="0"
-                max="100"
-                value={formData.cloud_cover}
+                max="23"
+                value={formData.hour}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="day_of_week" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" /> Day of Week (0-6)
+              </Label>
+              <Input
+                id="day_of_week"
+                name="day_of_week"
+                type="number"
+                min="0"
+                max="6"
+                value={formData.day_of_week}
                 onChange={handleChange}
                 required
               />

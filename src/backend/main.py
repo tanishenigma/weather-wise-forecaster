@@ -18,35 +18,42 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Define the input model based on expected features
+# Update the input model to match all 11 features
 class WeatherFeatures(BaseModel):
-    temperature: float
-    humidity: float
-    wind_speed: float
-    precipitation: float
-    pressure: float
-    cloud_cover: float
+    temp: float
+    dwpt: float
+    rhum: float
+    prcp: float
+    snow: float
+    wdir: float
+    wspd: float
+    wpgt: float
+    pres: float
+    hour: int
+    day_of_week: int
     
     class Config:
         schema_extra = {
             "example": {
-                "temperature": 25.0,
-                "humidity": 65.0,
-                "wind_speed": 10.0,
-                "precipitation": 0.0,
-                "pressure": 1013.0,
-                "cloud_cover": 30.0
+                "temp": 20.0,
+                "dwpt": 15.0,
+                "rhum": 65.0,
+                "prcp": 0.0,
+                "snow": 0.0,
+                "wdir": 180.0,
+                "wspd": 10.0,
+                "wpgt": 15.0,
+                "pres": 1013.0,
+                "hour": 14,
+                "day_of_week": 2
             }
         }
 
 # Load the model
-model_path = os.path.join(os.path.dirname(__file__), "model.pkl")
+model_path = os.path.join(os.path.dirname(__file__), "weather_model.pkl")
 try:
     model = joblib.load(model_path)
     print(f"Model loaded successfully from {model_path}")
-    # You can optionally print model features here
-    # if hasattr(model, 'feature_names_in_'):
-    #     print(f"Model features: {model.feature_names_in_}")
 except Exception as e:
     print(f"Error loading model: {e}")
     model = None
@@ -61,14 +68,19 @@ def predict(features: WeatherFeatures):
         raise HTTPException(status_code=500, detail="Model not loaded")
     
     try:
-        # Extract features in the order expected by the model
+        # Extract features in the correct order
         feature_values = [
-            features.temperature,
-            features.humidity,
-            features.wind_speed,
-            features.precipitation,
-            features.pressure,
-            features.cloud_cover
+            features.temp,
+            features.dwpt,
+            features.rhum,
+            features.prcp,
+            features.snow,
+            features.wdir,
+            features.wspd,
+            features.wpgt,
+            features.pres,
+            features.hour,
+            features.day_of_week
         ]
         
         # Make prediction
