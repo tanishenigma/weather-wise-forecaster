@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Thermometer, Droplets, Wind, CloudRain, Gauge, Snow, Compass, Clock, Calendar } from 'lucide-react';
+import { Thermometer, Droplets, Wind, CloudRain, Gauge, CloudSnow, Compass, Clock, Calendar } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 export interface WeatherFeatures {
@@ -43,7 +42,6 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
   });
 
   useEffect(() => {
-    // Update time-based fields every minute
     const interval = setInterval(() => {
       const now = new Date();
       setFormData(prev => ({
@@ -67,7 +65,6 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic validation
     if (formData.rhum < 0 || formData.rhum > 100) {
       toast({
         title: "Invalid Input",
@@ -165,7 +162,7 @@ const WeatherForm: React.FC<WeatherFormProps> = ({ onPredict, isLoading }) => {
             
             <div className="space-y-2">
               <Label htmlFor="snow" className="flex items-center gap-2">
-                <Snow className="h-4 w-4" /> Snowfall (mm)
+                <CloudSnow className="h-4 w-4" /> Snowfall (mm)
               </Label>
               <Input
                 id="snow"
