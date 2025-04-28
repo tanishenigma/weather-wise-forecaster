@@ -1,73 +1,66 @@
-# Welcome to your Lovable project
 
-## Project info
+# Weather Wise Forecaster
 
-**URL**: https://lovable.dev/projects/ae289a64-0cc1-41e2-9db0-e40b01a965a1
+A web application that uses machine learning to predict weather conditions based on environmental parameters.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
+- `/src/backend`: FastAPI backend that serves the ML model
+- `/src`: React frontend with components and services
 
-**Use Lovable**
+## Setup and Running
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ae289a64-0cc1-41e2-9db0-e40b01a965a1) and start prompting.
+### Backend Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Navigate to the backend directory:
+   ```
+   cd src/backend
+   ```
 
-**Use your preferred IDE**
+2. Install Python dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. Place your trained model file as `model.pkl` in the backend directory.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. Start the FastAPI server:
+   ```
+   uvicorn main:app --reload
+   ```
 
-Follow these steps:
+The backend will be available at http://localhost:8000, and interactive API documentation at http://localhost:8000/docs.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Frontend Setup
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Install Node.js dependencies:
+   ```
+   npm install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. Start the development server:
+   ```
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+The frontend will be available at http://localhost:8080.
 
-**Edit a file directly in GitHub**
+## Using the Application
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Enter weather parameters in the form (temperature, humidity, wind speed, etc.)
+2. Click "Predict Weather" to get the prediction
+3. View the prediction result and probabilities (if available)
 
-**Use GitHub Codespaces**
+## Machine Learning Model
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The application uses a trained RandomForestClassifier model (stored in `model.pkl`) to make predictions.
 
-## What technologies are used for this project?
+Input features expected by the model:
+- Temperature (°C)
+- Humidity (%)
+- Wind Speed (km/h)
+- Precipitation (mm)
+- Pressure (hPa)
+- Cloud Cover (%)
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/ae289a64-0cc1-41e2-9db0-e40b01a965a1) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+If your model requires different features, modify the `WeatherFeatures` class in both frontend and backend code.
