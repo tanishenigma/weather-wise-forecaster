@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Cloud, CloudDrizzle, CloudFog, CloudLightning, CloudRain, CloudSnow, Sun } from 'lucide-react';
+import { getWeatherCondition } from '../utils/weatherConditions';
 
 interface PredictionResultProps {
   prediction: string | null;
@@ -12,6 +13,8 @@ interface PredictionResultProps {
 const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, probabilities }) => {
   if (!prediction) return null;
 
+  const weatherCondition = getWeatherCondition(prediction);
+
   const getWeatherIcon = (predictionValue: string) => {
     const lowercasePrediction = predictionValue.toLowerCase();
     
@@ -19,7 +22,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, probabi
       return <CloudRain className="h-16 w-16 text-blue-500" />;
     } else if (lowercasePrediction.includes('cloud')) {
       return <Cloud className="h-16 w-16 text-gray-500" />;
-    } else if (lowercasePrediction.includes('snow')) {
+    } else if (lowercasePrediction.includes('snow') || lowercasePrediction.includes('blizzard')) {
       return <CloudSnow className="h-16 w-16 text-blue-200" />;
     } else if (lowercasePrediction.includes('thunder') || lowercasePrediction.includes('storm')) {
       return <CloudLightning className="h-16 w-16 text-yellow-500" />;
@@ -39,11 +42,11 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, probabi
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center mb-4">
-          {getWeatherIcon(prediction)}
+          {getWeatherIcon(weatherCondition)}
         </div>
         
         <div className="text-center mb-4">
-          <h3 className="text-2xl font-bold">{prediction}</h3>
+          <h3 className="text-2xl font-bold">{weatherCondition}</h3>
         </div>
         
         {probabilities && Object.keys(probabilities).length > 0 && (
@@ -55,7 +58,7 @@ const PredictionResult: React.FC<PredictionResultProps> = ({ prediction, probabi
                 .sort(([, a], [, b]) => b - a)
                 .map(([key, value]) => (
                   <div key={key} className="flex justify-between items-center">
-                    <span>{key}</span>
+                    <span>{getWeatherCondition(key)}</span>
                     <div className="flex items-center gap-2">
                       <div className="w-40 bg-secondary rounded-full h-2">
                         <div 
