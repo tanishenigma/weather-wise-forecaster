@@ -1,7 +1,9 @@
 
 import { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import WeatherForm, { WeatherFeatures } from '@/components/WeatherForm';
 import PredictionResult from '@/components/PredictionResult';
+import WeatherSimulation from '@/components/WeatherSimulation';
 import { useToast } from '@/components/ui/use-toast';
 import { predictWeather, PredictionResponse } from '@/services/ApiService';
 
@@ -32,18 +34,33 @@ const Index = () => {
       <div className="container mx-auto py-8 px-4">
         <header className="text-center mb-10">
           <h1 className="text-4xl font-bold tracking-tight text-blue-800 dark:text-blue-300 mb-2">Weather Wise Forecaster</h1>
-          <p className="text-slate-600 dark:text-slate-400">Use machine learning to predict weather conditions</p>
+          <p className="text-slate-600 dark:text-slate-400">Use machine learning to predict and simulate weather conditions</p>
         </header>
         
         <div className="flex flex-col items-center justify-center space-y-6">
-          <WeatherForm onPredict={handlePredict} isLoading={isLoading} />
-          
-          {prediction && (
-            <PredictionResult 
-              prediction={prediction.prediction.toString()} 
-              probabilities={prediction.probabilities} 
-            />
-          )}
+          <div className="w-full max-w-4xl">
+            <Tabs defaultValue="predict" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="predict">Predict Weather</TabsTrigger>
+                <TabsTrigger value="simulate">Simulate Weather</TabsTrigger>
+              </TabsList>
+              <TabsContent value="predict" className="pt-6">
+                <div className="flex flex-col items-center">
+                  <WeatherForm onPredict={handlePredict} isLoading={isLoading} />
+                  
+                  {prediction && (
+                    <PredictionResult 
+                      prediction={prediction.prediction.toString()} 
+                      probabilities={prediction.probabilities} 
+                    />
+                  )}
+                </div>
+              </TabsContent>
+              <TabsContent value="simulate" className="pt-6">
+                <WeatherSimulation />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
       
