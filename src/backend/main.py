@@ -62,14 +62,25 @@ class SimulationRequest(BaseModel):
             }
         }
 
-# Load the model
+# Load the model and scaler
 model_path = os.path.join(os.path.dirname(__file__), "weather_model.pkl")
+scaler_path = os.path.join(os.path.dirname(__file__), "scaler.pkl")
+
 try:
     model = joblib.load(model_path)
     print(f"Model loaded successfully from {model_path}")
+    
+    # Load the scaler if it exists
+    try:
+        scaler = joblib.load(scaler_path)
+        print(f"Scaler loaded successfully from {scaler_path}")
+    except Exception as e:
+        print(f"Warning: Scaler not loaded: {e}")
+        scaler = None
 except Exception as e:
     print(f"Error loading model: {e}")
     model = None
+    scaler = None
 
 @app.get("/")
 def read_root():
@@ -96,8 +107,12 @@ def predict(features: WeatherFeatures):
             features.day_of_week
         ]
         
-        # Make prediction
+        # Scale features if scaler is available
         input_data = np.array([feature_values])
+        if scaler is not None:
+            input_data = scaler.transform(input_data)
+        
+        # Make prediction
         prediction = model.predict(input_data)[0]
         
         # Check if model is classification or regression
@@ -189,8 +204,12 @@ def simulate_weather(request: SimulationRequest):
             
             features = [temp, dwpt, rhum, prcp, snow, wdir, wspd, wpgt, pres, hour, day_of_week]
             
-            # Make prediction
+            # Scale features if scaler is available
             input_data = np.array([features])
+            if scaler is not None:
+                input_data = scaler.transform(input_data)
+            
+            # Make prediction
             prediction = model.predict(input_data)[0]
             
             # Get prediction probabilities
